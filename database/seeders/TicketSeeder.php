@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Ticket;
+use App\Models\TicketType;
+use App\Models\User;
+use App\Models\Event;
 
 class TicketSeeder extends Seeder
 {
@@ -13,16 +16,19 @@ class TicketSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = \App\Models\User::all();
-        $events = \App\Models\Event::all();
+        $users = User::all();
+        $events = Event::with('ticketTypes')->get(); 
 
         foreach ($users as $user) {
             $numberOfTickets = rand(1, 2); // Numero casuale di biglietti da creare per l'utente
             while($numberOfTickets > 0) {
-                $event = $events->random(); // Seleziona un evento casuale
-                $ticketType = $event->ticketTypes()->where('quantity','>',0)->inRandomOrder()->first(); // Seleziona un tipo di biglietto casuale per l'evento
+  
+                $event = $events->random();
+                $ticketTypes = $event->ticketTypes->where('quantity', '>', 0);  //where sulla collection per filtrare i tipi di biglietti con quantità maggiore di 0 altrimenti restituisce una collection vuota
 
-                if ($ticketType) { // Controlla se esiste un tipo di biglietto disponibile
+                if ($ticketTypes->isNotEmpty()) { // Controlla se la collection non è vuota
+                $ticketType = $ticketTypes->random(); // Seleziona un tipo di biglietto casuale tra quelli disponibili
+
                     // Crea un biglietto per l'utente e il tipo di biglietto selezionato
                     Ticket::factory()->create([
                         'user_id' => $user->id,
@@ -33,6 +39,7 @@ class TicketSeeder extends Seeder
                     $ticketType->decrement('quantity');
                     $numberOfTickets--;
                 }
+                
             }
             
           

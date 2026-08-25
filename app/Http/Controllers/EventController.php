@@ -5,23 +5,31 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\EventResource;
 use App\Models\Event;
+use App\Repositories\EventRepository;
 
 class EventController extends Controller
 {
+    private EventRepository $eventRepository;
+
+    public function __construct(EventRepository $eventRepository)
+    {
+        $this->eventRepository = $eventRepository;
+    }
+
     public function index()
     {
         // Logic to retrieve and return all events with eager loading of ticket types
-        return EventResource::collection(Event::with('ticketTypes')->get());
+        return EventResource::collection($this->eventRepository->getAll(['ticketTypes']));
     }
     public function show(int $id)
     {
         // Logic to retrieve and return a specific event with eager loading of ticket types
-        return new EventResource(Event::with('ticketTypes')->findOrFail($id));
+        return new EventResource($this->eventRepository->getById($id, ['ticketTypes']));
     }
     public function store(Request $request)
     {
         // Logic to create a new event
-        $event = Event::create($request->validate([
+        $event = $this->eventRepository->create($request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'start_time' => 'required|date',
@@ -32,8 +40,8 @@ class EventController extends Controller
     public function update(Request $request, int $id)
     {
         // Logic to update an existing event
-        $event = Event::findOrFail($id);
-        $event->update($request->validate([
+        
+        $event = $this->eventRepository->update($id, $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',        
             'start_time' => 'sometimes|required|date',
@@ -44,8 +52,7 @@ class EventController extends Controller
     public function destroy(int $id)
     {
         // Logic to delete an event
-        $event = Event::findOrFail($id);
-        $event->delete();
+        $this->eventRepository->delete($id);
         return response()->json([
             'message' => 'Event deleted successfully'
         ]);
