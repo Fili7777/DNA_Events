@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Resources\EventResource;
-use App\Models\Event;
 use App\Repositories\EventRepository;
+use App\Http\Requests\UpdateEventRequest;
+use App\Http\Requests\StoreEventRequest;
 
 class EventController extends Controller
 {
@@ -26,27 +27,17 @@ class EventController extends Controller
         // Logic to retrieve and return a specific event with eager loading of ticket types
         return new EventResource($this->eventRepository->getById($id, ['ticketTypes']));
     }
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
         // Logic to create a new event
-        $event = $this->eventRepository->create($request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'location' => 'required|string|max:255',
-        ]));
+        $event = $this->eventRepository->create($request->validated());
+
         return new EventResource($event)->response()->setStatusCode(201);
     }
-    public function update(Request $request, int $id)
+    public function update(UpdateEventRequest $request, int $id)
     {
         // Logic to update an existing event
-        
-        $event = $this->eventRepository->update($id, $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',        
-            'start_time' => 'sometimes|required|date',
-            'location' => 'sometimes|required|string|max:255',
-        ]));
+        $event = $this->eventRepository->update($id, $request->validated());
         return new EventResource($event);
     }
     public function destroy(int $id)

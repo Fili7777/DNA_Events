@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use App\Repositories\UserRepository;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
 {
@@ -25,28 +27,18 @@ class UserController extends Controller
         return new UserResource($this->userRepository->getById($id, ['tickets']));
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $user = $this->userRepository->create($request->validate([
-            'name' => 'required|string|max:255',
-            'surname' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-        ]));
+        $user = $this->userRepository->create($request->validated());
 
         return (new UserResource($user))
                 ->response()
                 ->setStatusCode(201);
     }
 
-    public function update(Request $request, int $id)
+    public function update(UpdateUserRequest $request, int $id)
     {
-        $user = $this->userRepository->update($id, $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'surname' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,'.$id,
-            'password' => 'sometimes|required|string|min:8',
-        ]));
+        $user = $this->userRepository->update($id, $request->validated());
 
         return new UserResource($user);
     }
