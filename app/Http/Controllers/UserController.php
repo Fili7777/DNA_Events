@@ -3,25 +3,31 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Http\Resources\UserResource;
+use App\Repositories\UserRepository;
 
 class UserController extends Controller
 {
+    private UserRepository $userRepository;
+
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
     public function index()
     {
-        return UserResource::collection(User::with('tickets')->get());
+        return UserResource::collection($this->userRepository->getAll(['tickets']));
     }
 
     public function show(int $id)
     {
-        $user = User::with('tickets')->findOrFail($id);
-        return new UserResource($user);
+        return new UserResource($this->userRepository->getById($id, ['tickets']));
     }
 
     public function store(Request $request)
     {
-        $user = User::create($request->validate([
+        $user = $this->userRepository->create($request->validate([
             'name' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -35,9 +41,7 @@ class UserController extends Controller
 
     public function update(Request $request, int $id)
     {
-        $user = User::findOrFail($id);
-
-        $user->update($request->validate([
+        $user = $this->userRepository->update($id, $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'surname' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|unique:users,email,'.$id,
@@ -46,11 +50,9 @@ class UserController extends Controller
 
         return new UserResource($user);
     }
-
     public function destroy(int $id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $this->userRepository->delete($id);
 
         return response()->json([
             'message' => 'User deleted successfully'
