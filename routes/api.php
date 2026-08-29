@@ -7,6 +7,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+//route login
+Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
+
 //route events
 Route::get('/events', [\App\Http\Controllers\EventController::class, 'index']);
 Route::get('/events/{id}', [\App\Http\Controllers\EventController::class, 'show']);
