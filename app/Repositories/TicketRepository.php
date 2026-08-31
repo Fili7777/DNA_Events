@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use App\Models\User;
+
 use App\Models\Ticket;
 
 class TicketRepository
@@ -9,6 +11,11 @@ class TicketRepository
     public function getAll(array $relations = [])
     {
         return Ticket::with($relations)->get();
+    }
+
+    public function getByUser(User $user, array $relations = [])
+    {
+        return Ticket::with($relations)->where('user_id', $user->id)->get();
     }
 
     public function getById(int $id, array $relations = [])

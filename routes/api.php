@@ -25,10 +25,19 @@ Route::put('/ticket-types/{id}',[\App\Http\Controllers\TicketTypeController::cla
 Route::delete('/ticket-types/{id}',[\App\Http\Controllers\TicketTypeController::class,'destroy']);
 
 //route tickets
-Route::get('/tickets',[\App\Http\Controllers\TicketController::class,'index']);
+Route::get('/tickets',[\App\Http\Controllers\TicketController::class,'index'])
+->middleware(['auth:sanctum', App\Http\Middleware\AdminMiddleware::class]);
+
+Route::get('/my-tickets',[\App\Http\Controllers\TicketController::class,'myTickets'])->middleware('auth:sanctum');
+
 Route::get('/tickets/{id}',[\App\Http\Controllers\TicketController::class,'show']);
+
 Route::post('/tickets',[\App\Http\Controllers\TicketController::class,'store']);
+
+Route::post('/tickets/purchase',[\App\Http\Controllers\TicketController::class,'purchase'])->middleware('auth:sanctum');
+
 Route::put('/tickets/{id}',[\App\Http\Controllers\TicketController::class,'update']);
+
 Route::delete('/tickets/{id}',[\App\Http\Controllers\TicketController::class,'destroy']);
 
 //route users

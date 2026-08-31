@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreTicketRequest extends FormRequest
+class PurchaseTicketRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,7 +28,6 @@ class StoreTicketRequest extends FormRequest
             'attendee_birth_date' => 'required|date',
             'attendee_phone' => 'required|string|max:20',
             'ticket_type_id' => 'required|integer|exists:ticket_types,id',
-            'user_id' => 'required|integer|exists:users,id',
         ];
     }
 }

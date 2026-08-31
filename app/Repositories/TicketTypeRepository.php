@@ -15,6 +15,11 @@ class TicketTypeRepository
     {
         return TicketType::with($relations)->findOrFail($id);
     }
+    
+    public function getByIdForUpdate(int $id, array $relations = [])
+    {
+        return TicketType::with($relations)->lockForUpdate()->findOrFail($id);
+    }
 
     public function create(array $data)
     {
